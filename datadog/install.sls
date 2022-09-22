@@ -27,10 +27,8 @@ key-file-{{ key_fingerprint }}-import:
         gpg --no-default-keyring --keyring {{ datadog_apt_usr_share_keyring }} --list-keys --with-fingerprint --with-colons | grep ${fingerprint}
 {% endmacro %}
 
-{%- if grains['os_family'].lower() == 'debian' %}
-datadog-apt-https:
-  pkg.installed:
-    - name: apt-transport-https
+{%- if grains['os_family'].lower() == 'debian' or
+       grains['os_family'].lower() == 'vyos' %}
 
 datadog-gnupg:
   pkg.installed:
@@ -64,7 +62,8 @@ datadog-gnupg:
    APT sources: https://github.com/saltstack/salt/issues/22412; therefore we use
    file.managed instead of pkgrepo.managed for debian platforms #}
 
-{%- if grains['os_family'].lower() == 'debian' -%}
+{%- if grains['os_family'].lower() == 'debian' or
+       grains['os_family'].lower() == 'vyos' -%}
 datadog-repo:
   file.managed:
     {# Determine beta or stable distribution from version #}
@@ -129,14 +128,16 @@ datadog-pkg:
     - name: datadog-agent
     {%- if latest_agent_version %}
     - version: 'latest'
-    {%- elif grains['os_family'].lower() == 'debian' %}
+    {%- elif grains['os_family'].lower() == 'debian' or
+             grains['os_family'].lower() == 'vyos'%}
     - version: 1:{{ datadog_install_settings.agent_version }}-1
     {%- elif grains['os_family'].lower() == 'redhat' %}
     - version: {{ datadog_install_settings.agent_version }}-1
     {%- endif %}
     - ignore_epoch: True
     - refresh: True
-    {%- if grains['os_family'].lower() == 'debian' %}
+    {%- if grains['os_family'].lower() == 'debian' or
+           grains['os_family'].lower() == 'vyos'%}
     - require:
       - file: datadog-repo
     {%- elif grains['os_family'].lower() == 'redhat' %}
@@ -144,7 +145,8 @@ datadog-pkg:
       - pkgrepo: datadog-repo
     {%- endif %}
 
-{%- if grains['os_family'].lower() == 'debian' %}
+{%- if grains['os_family'].lower() == 'debian'or
+       grains['os_family'].lower() == 'vyos' %}
 datadog-signing-keys-pkg:
   pkg.installed:
     - name: datadog-signing-keys
