@@ -83,8 +83,6 @@ datadog-repo:
     - contents: deb [signed-by={{ datadog_apt_usr_share_keyring }}] https://apt.datadoghq.com/ {{ distribution }} {{ packages }}
     - mode: 0644
     - name: /etc/apt/sources.list.d/datadog.list
-    - require:
-      - pkg: datadog-apt-https
 
 {%- elif grains['os_family'].lower() == 'redhat' %}
 
